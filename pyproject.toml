@@ -1,0 +1,119 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "my-fastapi-project"
+version = "0.1.0"
+description = ''
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = []
+authors = [{ name = "Dragos Catarahia", email = "dragos@catarahia.me" }]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+    "alembic>=1.13.2,<2.0.0",
+    "asyncpg>=0.29.0,<0.30.0",
+    "fastapi[all]>=0.111.1,<0.112.0",
+    "psycopg2-binary>=2.9.9,<3.0.0",
+    "sqlalchemy>=2.0.31,<3.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "coverage[toml]>=7.2.0,<8.0.0",
+    "pytest>=7.4.0,<8.0.0",
+    "testcontainers>=3.7.0,<4.0.0",
+]
+lint = ["bandit>=1.7.5,<2.0.0", "pyright>=1.1.350,<2.0.0", "ruff>=0.1.0,<0.2.0"]
+hooks = ["pre-commit>=3.3.0,<4.0.0"]
+
+[project.urls]
+Documentation = "https://github.com/Dragos Catarahia/my-fastapi-project#readme"
+Issues = "https://github.com/Dragos Catarahia/my-fastapi-project/issues"
+Source = "https://github.com/Dragos Catarahia/my-fastapi-project"
+
+[tool.hatch.envs]
+default = { python = "3.12", installer = "uv" }
+
+[tool.hatch.envs.test]
+features = ["test"]
+
+[tool.hatch.envs.test.scripts]
+test = "pytest {args:tests}"
+cov = "coverage run -m pytest {args:tests}"
+report = "coverage report"
+
+[tool.hatch.envs.lint]
+features = ["lint"]
+path = ".hatch/lint"
+
+[tool.hatch.envs.lint.scripts]
+format = ["ruff format {args:src}", "ruff check --fix {args:src}"]
+check = [
+    "ruff format {args:src} --check",
+    "ruff check {args:src}",
+    "pyright {args:src}",
+    "bandit -r {args:src}",
+]
+
+[tool.hatch.envs.hooks]
+features = ["hooks"]
+
+[tool.coverage.run]
+source_pkgs = ["my_fastapi_project", "tests"]
+branch = true
+parallel = true
+
+[tool.coverage.paths]
+my_fastapi_project = [
+    "src/my_fastapi_project",
+    "*/my-fastapi-project/src/my_fastapi_project",
+]
+tests = ["tests", "*/my-fastapi-project/tests"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.coverage.report]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+
+[tool.ruff]
+line-length = 120
+exclude = ["alembic"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle
+    "F",      # Pyflakes
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "I",      # isort
+    "Q",      # flake8-quotes
+    "RUF100", # unused-noqa
+    "DTZ005", # https://docs.astral.sh/ruff/rules/call-datetime-now-without-tzinfo/
+]
+flake8-quotes = { inline-quotes = "single", multiline-quotes = "double" }
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+docstring-code-format = true
+quote-style = "single"
+
+[tool.pyright]
+venvPath = '.hatch'
+venv = 'lint'
