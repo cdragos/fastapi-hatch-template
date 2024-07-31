@@ -1,0 +1,6 @@
+email,hashed_password,is_active,first_name,last_name
+john.doe@example.com,hashed_password_123,true,John,Doe
+jane.smith@example.com,hashed_password_456,true,Jane,Smith
+admin@example.com,hashed_password_789,true,Admin,User
+alice.johnson@example.com,hashed_password_101,true,Alice,Johnson
+bob.williams@example.com,hashed_password_202,false,Bob,Williams

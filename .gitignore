@@ -1,12 +1,16 @@
 # python generated files
-__pycache__/
+*.egg-info
 *.py[oc]
+.pytest_cache
+.ruff_cache
+__pycache__/
 build/
 dist/
 wheels/
-*.egg-info
-.pytest_cache
 
 # venv
 .venv
 .hatch
+
+# system
+.DS_Store

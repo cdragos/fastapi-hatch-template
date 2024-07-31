@@ -1,0 +1,53 @@
+ci:
+  autofix_prs: true
+  autoupdate_schedule: weekly
+  autofix_commit_msg: "fix(pre_commit): 🎨 auto format pre-commit hooks"
+  autoupdate_commit_msg: "chore(pre_commit): ⬆ pre_commit autoupdate"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-toml
+      - id: check-yaml
+        args: ["--unsafe"]
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: ruff
+        name: Ruff
+        entry: ruff check
+        args: [--fix, --exit-non-zero-on-fix]
+        types: [python]
+        language: system
+        files: ^src/.*\.py$
+
+      - id: ruff format
+        name: Ruff Format
+        entry: ruff format
+        language: system
+        types: [python]
+        files: ^src/.*\.py$
+
+      - id: pyright
+        name: pyright
+        entry: pyright
+        language: system
+        types: [python]
+        pass_filenames: false
+        files: ^src/.*\.py$
+
+      - id: bandit
+        name: Bandit
+        entry: bandit
+        args: ["-c", "pyproject.toml", "-r", "src"]
+        types: [python]
+        language: system
+        pass_filenames: false

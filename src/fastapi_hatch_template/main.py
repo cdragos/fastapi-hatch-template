@@ -1,3 +1,3 @@
-from my_fastapi_project import create_app
+from fastapi_hatch_template import create_app
 
 app = create_app()

@@ -3,19 +3,29 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "my-fastapi-project"
+name = "fastapi-hatch-template"
 version = "0.1.0"
-description = ''
+description = "A template for FastAPI projects using Hatch for environment management and packaging, with built-in support for async operations, database migrations, and static analysis."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = "MIT"
-keywords = []
+keywords = [
+    "asyncio",
+    "fastapi",
+    "fastapi-template",
+    "hatch",
+    "pyright",
+    "pytest",
+    "python3",
+    "ruff",
+    "sqlalchemy",
+    "testcontainers",
+    "uv",
+]
 authors = [{ name = "Dragos Catarahia", email = "dragos@catarahia.me" }]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -23,75 +33,80 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
+    "aiofiles>=24.1.0,<25.0.0",
     "alembic>=1.13.2,<2.0.0",
     "asyncpg>=0.29.0,<0.30.0",
     "fastapi[all]>=0.111.1,<0.112.0",
+    "greenlet>=3.0.3,<4.0.0",
     "psycopg2-binary>=2.9.9,<3.0.0",
     "sqlalchemy>=2.0.31,<3.0.0",
 ]
 
 [project.optional-dependencies]
-test = [
-    "coverage[toml]>=7.2.0,<8.0.0",
-    "pytest>=7.4.0,<8.0.0",
-    "testcontainers>=3.7.0,<4.0.0",
-]
-lint = ["bandit>=1.7.5,<2.0.0", "pyright>=1.1.350,<2.0.0", "ruff>=0.1.0,<0.2.0"]
-hooks = ["pre-commit>=3.3.0,<4.0.0"]
+# Optional dependencies for testing, linting, and hooks
+test = ["anyio", "pytest", "testcontainers"]
+lint = ["bandit", "pyright", "ruff"]
+hooks = ["pre-commit"]
 
 [project.urls]
-Documentation = "https://github.com/Dragos Catarahia/my-fastapi-project#readme"
-Issues = "https://github.com/Dragos Catarahia/my-fastapi-project/issues"
-Source = "https://github.com/Dragos Catarahia/my-fastapi-project"
+# Project URLs for documentation, issues, and source code
+Documentation = "https://github.com/cdragos/fastapi-hatch-template#readme"
+Issues = "https://github.com/cdragos/fastapi-hatch-template/issues"
+Source = "https://github.com/cdragos/fastapi-hatch-template"
 
-[tool.hatch.envs]
-default = { python = "3.12", installer = "uv" }
+[tool.hatch.envs.default]
+# Default environment settings
+python = "3.12"
+installer = "uv"
+path = ".hatch/default"
+
+[tool.hatch.envs.default.scripts]
+# Default environment scripts for development and database operations
+dev = "fastapi dev {args:src/fastapi_hatch_template/main.py}"
+make_migrations = "alembic revision --autogenerate"
+upgrade = "alembic upgrade head"
+seed_db = "python {args:src/cli.py} seed-db"
+
+[tool.hatch.envs.default.env-vars]
+# Enable AsyncIO debug mode
+PYTHONASYNCIODEBUG = "1"
 
 [tool.hatch.envs.test]
 features = ["test"]
+path = ".hatch/test"
 
 [tool.hatch.envs.test.scripts]
-test = "pytest {args:tests}"
-cov = "coverage run -m pytest {args:tests}"
-report = "coverage report"
+test = "pytest {args:src/tests}"
 
-[tool.hatch.envs.lint]
+[tool.hatch.envs.hatch-static-analysis]
 features = ["lint"]
-path = ".hatch/lint"
+path = ".hatch/hatch_static_analysis"
 
-[tool.hatch.envs.lint.scripts]
-format = ["ruff format {args:src}", "ruff check --fix {args:src}"]
-check = [
-    "ruff format {args:src} --check",
-    "ruff check {args:src}",
-    "pyright {args:src}",
-    "bandit -r {args:src}",
+[tool.hatch.envs.hatch-static-analysis.scripts]
+format-check = ["ruff format --check"]
+format-fix = ["ruff format"]
+lint-check = [
+  "ruff check",
+  "pyright",
+  "bandit -c pyproject.toml -r src"
 ]
+lint-fix = ["ruff check --fix"]
+
+[tool.hatch.envs.hatch-static-analysis.env-vars]
+# Automatically use the latest available version of Pyright
+PYRIGHT_PYTHON_FORCE_VERSION = "latest"
 
 [tool.hatch.envs.hooks]
-features = ["hooks"]
-
-[tool.coverage.run]
-source_pkgs = ["my_fastapi_project", "tests"]
-branch = true
-parallel = true
-
-[tool.coverage.paths]
-my_fastapi_project = [
-    "src/my_fastapi_project",
-    "*/my-fastapi-project/src/my_fastapi_project",
-]
-tests = ["tests", "*/my-fastapi-project/tests"]
+features = ["lint", "hooks"]
+path = ".hatch/hooks"
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[tool.coverage.report]
-exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
-
 [tool.ruff]
+target-version = "py310"
 line-length = 120
-exclude = ["alembic"]
+include = ["pyproject.toml", "src/**/*.py", "tests/**/*.py"]
 
 [tool.ruff.lint]
 select = [
@@ -105,7 +120,22 @@ select = [
     "RUF100", # unused-noqa
     "DTZ005", # https://docs.astral.sh/ruff/rules/call-datetime-now-without-tzinfo/
 ]
-flake8-quotes = { inline-quotes = "single", multiline-quotes = "double" }
+ignore = ["B008"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+multiline-quotes = "double"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = [
+    "fastapi",
+    "httpx",
+    "pydantic",
+    "pytest",
+    "sqlalchemy",
+    "testcontainers",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -115,5 +145,10 @@ docstring-code-format = true
 quote-style = "single"
 
 [tool.pyright]
+include = ["src"]
 venvPath = '.hatch'
-venv = 'lint'
+venv = 'test'
+reportUnsupportedDunderAll = false
+
+[tool.bandit]
+exclude_dirs = ["tests"]
